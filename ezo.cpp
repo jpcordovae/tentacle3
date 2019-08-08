@@ -1,6 +1,6 @@
 #include "ezo.h"
 
-uint16_t clk_div = BCM2835_I2C_CLOCK_DIVIDER_626;
+uint16_t clk_div = BCM2835_I2C_CLOCK_DIVIDER_2500;
 
 bool read_ezo_device(__u8 address, __u8 *buffer, size_t buffersize)
 {

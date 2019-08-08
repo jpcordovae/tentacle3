@@ -29,6 +29,4 @@ extern uint16_t clk_div;
 bool read_ezo_device(__u8 address, __u8 *buffer, size_t buffersize);
 bool write_ezo_device(__u8 address, __u8 *buffer, size_t buffersize);
 
-
-
 #endif

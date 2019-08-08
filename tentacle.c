@@ -117,20 +117,27 @@ int main(int argc, char *argv[])
 
   while(1) {
     
-    if(!read_t(t)) {
-      printf("ec reading error.\r\n");
+    if(!read_ph(ph)) {
+      printf("pH reading error.\r\n");
       continue;
     }
 
-    if(!read_ph(ph)) {
-      printf("ph reading error.\r\n");
-      continue;
-    }
-    
+    usleep(1000000); // sleep 1.5s
+
     if(!read_ec(ec)) {
       printf("ec reading error.\r\n");
       continue;
     }
+
+    usleep(1000000); // sleep 1.5s
+
+    if(!read_t(t)) {
+      printf("temperature reading error.\r\n");
+      continue;
+    }
+
+    usleep(1000000); // sleep 1.5s
+
     
     shm_sensors->ph = ph;
     shm_sensors->ec = ec;
