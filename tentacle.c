@@ -94,6 +94,17 @@ bool read_t(float &value)
   return true;
 }
 
+void ec_factory_reset()
+{
+  __u8 command[8];
+  memset(command,0x00,8); // clear buffer
+  memcpy(command,"Factory",7);
+  if(!write_ezo_device(ECADDR,(__u8*)&command,7)){  // send {'R',0x00 }
+    printf("Error factory reset for ec, write_ezo_device \r\n");
+  }
+  usleep(100000); 
+}
+
 int main(int argc, char *argv[])
 {
   if (!bcm2835_init()) {
@@ -114,7 +125,9 @@ int main(int argc, char *argv[])
   float ph = 0.0f;
   float ec = 0.0f;
   float t  = 0.0f;
-
+  
+  //ec_factory_reset();
+  
   while(1) {
     
     if(!read_ph(ph)) {
@@ -122,23 +135,16 @@ int main(int argc, char *argv[])
       continue;
     }
 
-    usleep(1000000); // sleep 1.5s
-
     if(!read_ec(ec)) {
       printf("ec reading error.\r\n");
       continue;
     }
-
-    usleep(1000000); // sleep 1.5s
 
     if(!read_t(t)) {
       printf("temperature reading error.\r\n");
       continue;
     }
 
-    usleep(1000000); // sleep 1.5s
-
-    
     shm_sensors->ph = ph;
     shm_sensors->ec = ec;
     shm_sensors->temperature = t;
