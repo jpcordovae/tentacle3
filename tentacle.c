@@ -28,12 +28,13 @@ void print_buffer(__u8 *buffer, size_t buffersize)
   printf("\r\n");
 }
 
-bool read_ph(float &value)
+bool read_ph(float &value,const float temperature)
 {
   __u8 resp[32];
-  __u8 command = 'R';
+  __u8 command[32];
   memset(resp,0x00,sizeof(resp));
-
+  memset(command,0x00,sizeof(command));
+  sprintf((char*)command,"RT,%f",temperature);
   if(!write_ezo_device(PHADDR,(__u8*)&command,1)) {
     printf("Error reading pH, write_ezo_device \r\n");
     return false;
@@ -45,17 +46,17 @@ bool read_ph(float &value)
     printf("Error reading ph, read_ezo_device \r\n");
     return false;
   }
-  print_buffer((__u8*)resp,32);
   value = atof((char*)(resp+1));
   return true;
 }
 
-bool read_ec(float &value)
+bool read_ec(float &value, const float temperature)
 {
   __u8 resp[32];
-  __u8 command = 'R';;
-  memset(resp,0x00,32); // clear buffer
-
+  __u8 command[32];
+  memset(resp,0x00,sizeof(resp)); // clear buffer
+  memset(command,0x00,sizeof(command)); // clear buffer
+  sprintf((char*)command,"RT,%f",temperature);
   if(!write_ezo_device(ECADDR,(__u8*)&command,1)){  // send {'R',0x00 }
     printf("Error reading EC, write_ezo_device \r\n");
     return false;
@@ -67,7 +68,7 @@ bool read_ec(float &value)
     printf("Error reading EC, read_ezo_device \r\n");
     return false;
   }
-  print_buffer((__u8*)resp,sizeof(resp)); 
+  //print_buffer((__u8*)resp,sizeof(resp)); 
   value = atof((char*)(resp+1));
   return true;
 }
@@ -100,9 +101,9 @@ void ec_factory_reset()
   memset(command,0x00,8); // clear buffer
   memcpy(command,"Factory",7);
   if(!write_ezo_device(ECADDR,(__u8*)&command,7)){  // send {'R',0x00 }
-    printf("Error factory reset for ec, write_ezo_device \r\n");
+    printf("Error setting temperature \r\n");
   }
-  usleep(100000); 
+  usleep(400000);
 }
 
 int main(int argc, char *argv[])
@@ -129,25 +130,26 @@ int main(int argc, char *argv[])
   //ec_factory_reset();
   
   while(1) {
-    
-    if(!read_ph(ph)) {
-      printf("pH reading error.\r\n");
-      continue;
-    }
-
-    if(!read_ec(ec)) {
-      printf("ec reading error.\r\n");
-      continue;
-    }
 
     if(!read_t(t)) {
       printf("temperature reading error.\r\n");
       continue;
     }
 
+    shm_sensors->temperature = t;
+    
+    if(!read_ph(ph,shm_sensors->temperature)) {
+      printf("pH reading error.\r\n");
+      continue;
+    }
+
+    if(!read_ec(ec,shm_sensors->temperature)) {
+      printf("ec reading error.\r\n");
+      continue;
+    }
+
     shm_sensors->ph = ph;
     shm_sensors->ec = ec;
-    shm_sensors->temperature = t;
     
     std::cout << *shm_sensors << std::endl;
     
