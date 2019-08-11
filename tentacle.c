@@ -68,7 +68,6 @@ bool read_ec(float &value, const float temperature)
     printf("Error reading EC, read_ezo_device \r\n");
     return false;
   }
-  //print_buffer((__u8*)resp,sizeof(resp)); 
   value = atof((char*)(resp+1));
   return true;
 }
@@ -126,8 +125,6 @@ int main(int argc, char *argv[])
   float ph = 0.0f;
   float ec = 0.0f;
   float t  = 0.0f;
-  
-  //ec_factory_reset();
   
   while(1) {
 

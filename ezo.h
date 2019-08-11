@@ -26,7 +26,10 @@
 
 extern uint16_t clk_div;
 
+enum calibration_type { DRY, SINGLE_POINT, LOW_END, HIGH_END, CLEAR };
+  
 bool read_ezo_device(__u8 address, __u8 *buffer, size_t buffersize);
 bool write_ezo_device(__u8 address, __u8 *buffer, size_t buffersize);
+bool calibrate_ec(float cal_value);
 
 #endif
